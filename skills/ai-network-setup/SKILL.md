@@ -1,32 +1,38 @@
 ---
 name: ai-network-setup
-description: Use when setting up, replicating, or auditing a stable proxy and leak-prevention network environment on macOS/iPhone for developers using AI tools — Clash Verge Rev fixed-egress Fallback group, TUN/fake-ip DNS, WebRTC limiter, Shadowrocket, company VPN/split-DNS coexistence, proxy service selection, and scheduled read-only checks.
+description: >
+  Stable proxy and leak prevention for AI tools on macOS (session drops,
+  the egress address changing mid-session, DNS or WebRTC leaks, company VPN
+  clashes). Triggers: 网络不稳, 出口跳变, 掉线, DNS泄漏, WebRTC泄漏,
+  公司VPN冲突, stable proxy, leak check, Clash TUN, fake-ip.
+  Do not use on Windows, Linux, or Android, or where the service is not
+  officially available.
 ---
 
-# AI 开发者网络配置（渐进式）
+# 稳定代理与防泄漏
 
-定位：稳定、一致的出口 + 公司网络兼容 + 隐私防泄漏。**不用于**规避服务地区限制、封禁或 KYC；遵守当地法律与服务条款。
+只在服务官方支持的地区使用。`scripts/` 和 `templates/` 都相对本文件所在的技能根目录。
 
-## 执行原则（Agent 必读）
-1. 默认**只读**：先跑检查、报告差异，改动前征得用户同意。
-2. AI 客户端运行时**不热重载/不退出** Clash。
-3. 改前备份：`cp FILE FILE.bak-<用途>-$(date +%Y%m%d%H%M%S)`；改后确认运行时 == 磁盘。
-4. **永不打印**凭据、订阅 URL；订阅 profile 文件不 `cat`。
-5. 不禁用、不绕过公司安全组件（DNS 安全扩展、VPN、MDM）。
+## 第 0 步
 
-## 层级（按顺序，每层：目标 / 前置条件 / 步骤 / 验证 / 常见坑 / 回滚）
-| 层 | 内容 | 文档 |
-|---|---|---|
-| 0 | 红线、拓扑 | [references/00-overview.md](references/00-overview.md) |
-| 1 | Clash Verge：Service 模式、脚本覆写、AI-ISP Fallback、TUN gVisor、fake-ip、系统代理 bypass | [references/01-basic-clash.md](references/01-basic-clash.md) |
-| 2 | WebRTC Network Limiter、Shadowrocket | [references/02-tools-browser-shadowrocket.md](references/02-tools-browser-shadowrocket.md) |
-| 3 | 公司 VPN 共存、Split DNS、Tailscale、dns-guard、IPv6、bypass 字段坑 | [references/03-advanced.md](references/03-advanced.md) |
-| 4 | 服务选购（机场 / 静态 ISP / VPS） | [references/04-service-selection.md](references/04-service-selection.md) |
-| 5 | 巡检脚本与定时 | [references/05-scheduled-checks.md](references/05-scheduled-checks.md) |
-| — | 故障速查、新设备/同事 checklist | [references/troubleshooting.md](references/troubleshooting.md) |
+按 [references/00-diagnose.md](references/00-diagnose.md) 问完 6 个问题。Windows、Linux、Android：说明当前未覆盖并停止。
 
-## 快速流程
-1. 读第 0 层；向用户确认占位符：`<你的固定出口IP>`、`<公司域名>`、订阅与代理账号（用户自己在 UI 填写）。
-2. 按第 1 层配置，模板 `../../templates/clash-verge-script-override.example.js`。
-3. 运行 `EXPECTED_IP=<你的固定出口IP> ../../scripts/net-check.sh`（退出码 0 OK / 1 WARN / 2 FAIL）。
-4. 全 OK 后按需做 2–5 层；手机用 `../../templates/shadowrocket.conf`，定时用 `../../templates/com.example.net-check.plist`。
+| 诊断结果 | 打开 |
+|---|---|
+| Mac，已有订阅，要稳定 | [01-path-mac-clash.md](references/01-path-mac-clash.md) |
+| 还要固定出口地址 | 先做完 01，再可选 [02-fixed-exit.md](references/02-fixed-exit.md) |
+| iPhone | [03-mobile.md](references/03-mobile.md)。Android 未覆盖 |
+| 公司或学校 VPN、内网域名 | [04-company-vpn.md](references/04-company-vpn.md) |
+| DNS / WebRTC / IPv6 | [05-leak-checks.md](references/05-leak-checks.md) |
+| 定时复查 | [06-monitoring.md](references/06-monitoring.md) |
+| 还没有订阅 | [07-buying.md](references/07-buying.md) |
+| 已经异常 | [troubleshooting.md](references/troubleshooting.md) |
+
+## Agent 约定
+
+1. **问。** 操作系统、有没有订阅、要不要改 IPv6 / DNS / 系统代理 / 开机任务 / 浏览器插件，不清楚就先问。非 macOS，或服务在当地官方不可用，立即停止。
+2. **做。** 默认可跑 `scripts/probe-env.sh` 和 `scripts/net-check.sh`（只读）。备份和改配置是 `[Agent需确认]`。订阅和密码只由用户在客户端界面填写，不要读取 profile 正文。
+3. **验。** 以每一层的 pass/fail 为准。未启用固定出口时，出口地址变化不算失败。
+4. **退。** 验证失败或用户叫停时，按 [troubleshooting.md](references/troubleshooting.md) 的「紧急全回退」处理。AI 客户端仍连着时不要重载。
+
+`[用户UI]` 用户自己点图形界面。`[Agent只读]` 只查询。`[Agent需确认]` 写入前必须得到明确同意。人人都要遵守的红线在诊断文档里。「不要换出口、客户端开着不要重载」只在固定出口模式生效。

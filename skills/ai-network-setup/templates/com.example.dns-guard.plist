@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  可选组件，默认不要装。
+  只有 VPN 反复改写 DNS、导致解析失败时才考虑。见 references/04-company-vpn.md。
+  REPLACE_ME_USER、REPLACE_ME_SERVICE、REPLACE_ME_DNS 都要换成你的值。
+  DNS 示例可以是 1.1.1.1 8.8.8.8 或你单位要求的地址，中间用空格分隔。
+  StartInterval 单位是秒。300 是示例。不要改成数秒一次。
+  脚本发现 REPLACE_ME 会拒绝修改 DNS。
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.example.dns-guard</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/REPLACE_ME_USER/.claude/skills/ai-network-setup/scripts/dns-guard.sh</string>
+    <string>--apply</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>NETWORK_SERVICE</key>
+    <string>REPLACE_ME_SERVICE</string>
+    <key>DNS_SERVERS</key>
+    <string>REPLACE_ME_DNS</string>
+    <key>PATH</key>
+    <string>/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin</string>
+  </dict>
+  <key>StartInterval</key>
+  <integer>300</integer>
+  <key>RunAtLoad</key>
+  <false/>
+  <key>StandardOutPath</key>
+  <string>/Users/REPLACE_ME_USER/Library/Logs/dns-guard.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/REPLACE_ME_USER/Library/Logs/dns-guard.err.log</string>
+</dict>
+</plist>
