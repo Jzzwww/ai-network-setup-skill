@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  示例，不是作者的作息。
+  把 REPLACE_ME_USER 换成 macOS 用户名，并把脚本路径改成这台机器上的绝对路径。
+  launchd 用这台 Mac 的本地时区，不在这里写时区。
+  下面两个时刻只是例子，改成你需要的 Hour/Minute，或删到只留一个。
+  默认不设置 EXPECTED_IP。固定出口模式再加这个键，值用你自己的地址，不要提交。
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.example.net-check</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/REPLACE_ME_USER/.claude/skills/ai-network-setup/scripts/net-check.sh</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>GROUP</key>
+    <string>AI-EXIT</string>
+    <key>TRACE_URL</key>
+    <string>https://1.1.1.1/cdn-cgi/trace</string>
+    <key>IP_ECHO_URL</key>
+    <string>https://api.ipify.org</string>
+    <key>PATH</key>
+    <string>/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/homebrew/bin</string>
+  </dict>
+  <key>StartCalendarInterval</key>
+  <array>
+    <dict>
+      <key>Hour</key>
+      <integer>9</integer>
+      <key>Minute</key>
+      <integer>0</integer>
+    </dict>
+    <dict>
+      <key>Hour</key>
+      <integer>18</integer>
+      <key>Minute</key>
+      <integer>0</integer>
+    </dict>
+  </array>
+  <key>RunAtLoad</key>
+  <false/>
+  <key>StandardOutPath</key>
+  <string>/Users/REPLACE_ME_USER/Library/Logs/net-check.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/REPLACE_ME_USER/Library/Logs/net-check.log</string>
+</dict>
+</plist>
